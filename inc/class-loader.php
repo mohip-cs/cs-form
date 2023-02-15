@@ -3,7 +3,7 @@
 /**
  *  Loader.
  *
- * @package CF
+ * @package CS Form
  */
 
 if (!defined('ABSPATH')) {
@@ -24,12 +24,12 @@ class Loader
      */
     public function __construct()
     {
-        add_action('init', array($this, 'register_post_meta_cf'));
-        add_action('init', array($this, 'contact_form_cs_contact_form_block_init'));
-        add_action('init', array($this, 'contact_form_cs_listing_contact_form_block_init'));
+        add_action('init', array($this, 'cs_form_register_post_meta'));
+        add_action('init', array($this, 'cs_form_contact_form_block_init'));
+        add_action('init', array($this, 'cs_form_listing_contact_form_block_init'));
     }
 
-    function contact_form_cs_contact_form_block_init()
+    function cs_form_contact_form_block_init()
     {
         register_block_type(
             plugin_dir_path(__DIR__) . '/build',
@@ -41,13 +41,10 @@ class Loader
 
     function render_callback_cf($attributes)
     {
-        // var_dump($attributes);
-        // die('testtt123');
         update_post_meta($attributes['postId'], 'cf_attributes', $attributes);
-        // ob_start();
     }
 
-    function register_post_meta_cf()
+    function cs_form_register_post_meta()
     {
         register_post_meta(
             'contact-form',
@@ -59,7 +56,7 @@ class Loader
         );
     }
 
-    function contact_form_cs_listing_contact_form_block_init()
+    function cs_form_listing_contact_form_block_init()
     {
         // 	var_dump('hello'); die();
 
@@ -77,43 +74,30 @@ class Loader
         );
     }
 
-    function render_callback_post($attributes)
-    {
+    function render_callback_post($attributes) {
         $data = get_post_meta($attributes['postId'], 'cf_attributes');
-
-        ob_start();
-?>
-        <pre>
-            <?php
-                var_dump($data[0]['FormData']);
-            ?>
-        </pre>
-        <form action="action_page.php">
-
-        <?php
+        ob_start(); ?>
+        <form action="action_page.php"> <?php
             foreach ($data[0]['FormData'] as $index=>$field) {
                 $placeholder = isset($field['placeholder']) ? ($field['placeholder']) : '';
                 $required = isset($field['required']) ? ($field['required']) : false;
                 $class = isset($field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
                 $name = isset($field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
                 // print_r($field);
-                if ( 'textarea' === $field['type'] ) {
-                    ?>
+                if ( 'textarea' === $field['type'] ) { ?>
                           <div>  <?php
                             if(isset($field['label'])) {
                                 ?>
                                 <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
                                 <?php
-                            }
-                            ?>
+                            } ?>
                               <textarea class="<?php echo esc_attr($class); ?>" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>"></textarea> 
-                          </div>
-                    <?php
+                          </div> <?php
                 } elseif ('action' === $field['type'] ) {
                     // doaction will perform here
                 } elseif ('drop-down' === $field['type'] ) {
-                    $multiple = isset($field['multiple']) ? ($field['multiple']) : false;
-                    $options = isset($field['multiple']) ? explode(",",$field['multiple']) : '';
+                    $multiple = ( isset($field['multiple']) && true === $field['multiple'] ) ? 'multiple' : '';
+                    $options = isset($field['options']) ? explode(",",$field['options']) : '';
                     ?>
                         <div><?php
                             if(isset($field['label'])) {
@@ -122,14 +106,17 @@ class Loader
                                 <?php
                             }
                             ?>
-                            <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
-                                <option value="australia">Australia</option>
-                                <option value="canada">Canada</option>
-                                <option value="usa">USA</option>
+                            <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" <?php echo esc_attr($multiple); ?>>
+                                <?php  
+                                    foreach ($options as $option) {
+                                        ?>
+                                            <option value="<?php echo esc_attr($option); ?>"><?php echo esc_attr($option); ?></option>
+                                        <?php
+                                    }
+                                ?>
                             </select>
                         </div>
                     <?php
-
                 } elseif ('checkboxes' === $field['type'] ) {
                     ?>
                         <div>
@@ -164,25 +151,7 @@ class Loader
                 }
             }
         ?>
-
-            <!-- <label for="fname">First Name</label>
-            <input type="text" id="fname" name="firstname" placeholder="Your name..">
-
-            <label for="lname">Last Name</label>
-            <input type="text" id="lname" name="lastname" placeholder="Your last name..">
-
-            <label for="country">Country</label>
-            <select id="country" name="country">
-                <option value="australia">Australia</option>
-                <option value="canada">Canada</option>
-                <option value="usa">USA</option>
-            </select>
-
-            <label for="subject">Subject</label>
-            <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea> -->
-
             <input type="submit" value="Submit">
-
         </form>
 <?php
         return ob_get_clean();
@@ -190,5 +159,5 @@ class Loader
 }
 
 if (class_exists('Loader')) {
-    $class = new Loader();
+    new Loader();
 }

@@ -3,7 +3,7 @@
 /**
  *  Contact form post type.
  *
- * @package CF
+ * @package CS Form
  */
 
 if (!defined('ABSPATH')) {
@@ -52,9 +52,9 @@ class ContactForm
             self::POST_TYPE_SLUG,
             [
                 'labels'             => [
-                    'name'                  => __('Contact Form', 'cs-contact-form'),
-                    'singular_name'         => __('Contact Form', 'cs-contact-form'),
-                    'all_items'             => __('All Contact Forms', 'cs-contact-form'),
+                    'name'                  => __('Contact Form', 'cs-form'),
+                    'singular_name'         => __('Contact Form', 'cs-form'),
+                    'all_items'             => __('All Contact Forms', 'cs-form'),
                 ],
                 'has_archive'        => true,
                 'menu_icon'          => 'dashicons-visibility',

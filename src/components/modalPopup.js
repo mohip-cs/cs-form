@@ -60,7 +60,7 @@ const modalPopup = ({ data, index, props, setSettingModel, settingModel }) => {
 
 	const addmultipleHandlar = (value, index) => {
 		const multipleFormData = [...attributes.FormData];
-		multipleFormData[index].multiple = value.target.value;
+		multipleFormData[index].multiple = value.target.checked;
 		setAttributes({ FormData: multipleFormData });
 	};
 
