@@ -1,0 +1,221 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "contact-form-cs/contact-form",
+	"version": "0.1.0",
+	"title": "Contact Form",
+	"category": "theme",
+	"icon": "smiley",
+	"description": "utenberg block to adjust sticky video on frontend side.",
+	"supports": {
+		"html": false
+	},
+	"textdomain": "contact-form",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"attributes": {
+		"messages": {
+			"type": "object",
+			"default": [
+				{
+					"text": "Thank you for your message. It has been sent.",
+					"label": "Sender's message was sent successfully"
+				},
+				{
+					"text": "There was an error trying to send your message. Please try again later.",
+					"label": "Sender's message failed to send"
+				},
+				{
+					"text": "One or more fields have an error. Please check and try again.",
+					"label": "Validation errors occurred"
+				},
+				{
+					"text": "Please fill out this field.",
+					"label": "There is a field that the sender must fill in"
+				},
+				{
+					"text": "This field has a too long input.",
+					"label":
+						"There is a field with input that is longer than the maximum allowed length"
+				},
+				{
+					"text": "This field has a too short input.",
+					"label":
+						"There is a field with input that is shorter than the minimum allowed length"
+				},
+				{
+					"text": "There was an unknown error uploading the file.",
+					"label": "Uploading a file fails for any reason"
+				},
+				{
+					"text": "You are not allowed to upload files of this type.",
+					"label": "Uploaded file is not allowed for file type"
+				},
+				{
+					"text": "The uploaded file is too large.",
+					"label": "Uploaded file is too large"
+				},
+				{
+					"text": "This field has a too early date.",
+					"label": "Date is earlier than minimum limit"
+				},
+				{
+					"text": "This field has a too late date.",
+					"label": "Date is later than maximum limit"
+				},
+				{
+					"text": "Please enter a number.",
+					"label": "Number format that the sender entered is invalid"
+				},
+				{
+					"text": "This field has a too small number.",
+					"label": "Number is smaller than minimum limit"
+				},
+				{
+					"text": "This field has a too large number.",
+					"label": "Number is larger than maximum limit"
+				},
+				{
+					"text": "Please enter an email address.",
+					"label": "Email address that the sender entered is invalid"
+				},
+				{
+					"text": "Please enter a URL.",
+					"label": "URL that the sender entered is invalid"
+				},
+				{
+					"text": "Please enter a telephone number.",
+					"label": "Telephone number that the sender entered is invalid"
+				}
+			]
+		},
+		"FormData": {
+		"type": "array",
+			"default": [
+				{
+					"label": "Your Name",
+					"required": false,
+					"type": "text",
+					"class": "",
+					"placeholder": "",
+					"name": "your-name",
+					"min": "",
+					"max": "",
+					"options": "",
+					"multiple": false
+				},
+				{
+					"label": "Email",
+					"required": false,
+					"type": "email",
+					"class": "",
+					"name": "email",
+					"placeholder": "",
+					"min": "",
+					"max": "",
+					"options": "",
+					"multiple": false
+				},
+				{
+					"label": "Subject",
+					"required": false,
+					"type": "text",
+					"class": "",
+					"placeholder": "",
+					"name": "subject",
+					"min": "",
+					"max": "",
+					"options": "",
+					"multiple": false
+				},
+				{
+					"label": "Message",
+					"required": false,
+					"type": "textarea",
+					"class": "",
+					"name": "message",
+					"placeholder": "",
+					"min": "",
+					"max": "",
+					"options": "",
+					"multiple": false
+				}
+			]
+		},
+		"postId": {
+			"type": "integer",
+			"default": 0
+		},
+		"buttonText": {
+			"type": "string",
+			"default": "Submit"
+		},
+		"mailBody": {
+			"type": "array",
+			"default": [
+				{
+					"label": "To",
+					"text": "[site_admin_email]"
+				},
+				{
+					"label": "From",
+					"text": "{writeyourmail.com}"
+				},
+				{
+					"label": "Subject",
+					"text": "[your_subject]"
+				},
+				{
+					"label": "cc",
+					"text": ""
+				},
+				{
+					"label": "bcc",
+					"text": ""
+				},
+				{
+					"label": "Message Body",
+					"text": "[your_message]"
+				},
+				{
+					"label": "File attachments",
+					"text": "[your_file_attachment]"
+				}
+			]
+		},
+		"mail2Body": {
+			"type": "array",
+			"default": [
+				{
+					"label": "To",
+					"text": "[your-email]"
+				},
+				{
+					"label": "From",
+					"text": "{writeyourmail.com}"
+				},
+				{
+					"label": "Subject",
+					"text": "[your_subject]"
+				},
+				{
+					"label": "cc",
+					"text": ""
+				},
+				{
+					"label": "bcc",
+					"text": ""
+				},
+				{
+					"label": "Message Body",
+					"text": "[your_message]"
+				},
+				{
+					"label": "File attachments",
+					"text": "[your_file_attachment]"
+				}
+			]
+		}
+	}
+}
