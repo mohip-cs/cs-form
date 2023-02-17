@@ -8,6 +8,7 @@ const modalPopup = ({ data, index, props, setSettingModel, settingModel }) => {
 	console.log(attributes, "modal popup");
 
 	const [isToggled, toggle] = useState(false);
+	const placeholderFields = ['text','email', 'textarea', 'number', 'url']
 
 	const reuiredCheckHandlar = (value, index) => {
 		toggle(!isToggled);
@@ -104,6 +105,7 @@ const modalPopup = ({ data, index, props, setSettingModel, settingModel }) => {
 						placeholder={__(`Enter ${data.type} field label name`)}
 					/>
 				</div>
+				{ placeholderFields.includes(data.type) &&
 				<div>
 					<label>placeholder </label>
 					<RichText
@@ -115,6 +117,7 @@ const modalPopup = ({ data, index, props, setSettingModel, settingModel }) => {
 						placeholder={__(`Enter ${data.type} field label name`)}
 					/>
 				</div>
+				}
 				<div>
 					<label>Class attribute </label>
 					<RichText

@@ -303,27 +303,34 @@ export default function Edit(props) {
 																	</select>
 																</div>
 															) : element.type == "checkboxes" ? (
-																optionsArray.length === 1 &&
-																optionsArray[1] !== "" ? (
-																	<CheckboxControl label="option" />
-																) : (
-																	optionsArray.map((option) => (
-																		<CheckboxControl label={option} />
-																	))
-																)
+																<div> 
+																	<p>
+																		<label>{element.label}</label>
+																	</p>
+																	{optionsArray.length === 1 &&
+																	optionsArray[1] !== "" ? (
+																		
+																		<CheckboxControl label="option" />
+																	) : (
+																		optionsArray.map((option) => (
+																			<CheckboxControl label={option} />
+																		))
+																	)}
+																</div>
 															) : element.type == "radio_buttons" ? (
 																<div>
+																	<p>
+																		<label>{element.label}</label>
+																	</p>
 																	{optionsArray.length === 1 &&
 																	optionsArray[1] !== "" ? (
 																		<RadioControl
-																			label={element.label}
 																			options={[
 																				{ label: "redio control", value: "" },
 																			]}
 																		/>
 																	) : (
 																		<RadioControl
-																			label={element.label}
 																			options={optionsArray.map((option) => ({
 																				label: option,
 																				value: option,

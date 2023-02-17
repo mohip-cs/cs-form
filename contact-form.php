@@ -5,7 +5,7 @@
  * Description:       utenberg block For create contact form.
  * Requires at least: 6.1
  * Requires PHP:      7.0
- * Version:           0.1.0
+ * Version:           1.0.0
  * Author:            Creole Studios
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -21,6 +21,7 @@ if (!version_compare(PHP_VERSION, '5.0', '>=')) {
 } else {
 	require_once 'inc/class-loader.php';
 	require_once 'inc/class-contact-form-post-type.php';
+	require_once 'inc/class-settings.php';
 }
 
 /**
