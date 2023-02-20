@@ -82,94 +82,94 @@ class Loader
         <form method="post" action="" id="contactForm">
         <script src="https://www.google.com/recaptcha/api.js"></script>
             <?php
-            foreach ($data[0]['FormData'] as $index=>$field) {
-                $placeholder = ('' !== $field['placeholder']) ? ($field['placeholder']) : '';
-                $required = ('' !== $field['required']) ? ($field['required']) : false;
-                $class = ('' !== $field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
-                $name = ('' !== $field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
-                $options = ('' !== $field['options']) ? explode(",",$field['options']) : '';
-                $min = ('' !== $field['min']) ? ($field['min']) : '';
-                $max = ('' !== $field['max']) ? ($field['max']) : '';
-                // print_r($field);
-                if ( 'textarea' === $field['type'] ) { ?>
-                          <div> <?php
-                            if(isset($field['label'])) {
+            if(!empty($data[0]['FormData'])) {
+                foreach ($data[0]['FormData'] as $index=>$field) {
+                    $placeholder = ('' !== $field['placeholder']) ? ($field['placeholder']) : '';
+                    $required    = ('' !== $field['required']) ? ($field['required']) : false;
+                    $class       = ('' !== $field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
+                    $name        = ('' !== $field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
+                    $options     = ('' !== $field['options']) ? explode(",",$field['options']) : '';
+                    $min         = ('' !== $field['min']) ? ($field['min']) : '';
+                    $max         = ('' !== $field['max']) ? ($field['max']) : '';
+                    
+                    if ( 'textarea' === $field['type'] ) { ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
+                                    <?php
+                                } ?>
+                                <textarea class="<?php echo esc_attr($class); ?>" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>"></textarea> 
+                            </div> <?php
+                    } elseif ('action' === $field['type'] ) {
+                        // doaction will perform here
+                    } elseif ('drop-down' === $field['type'] ) {
+                        $multiple = ( isset($field['multiple']) && true === $field['multiple'] ) ? 'multiple' : '';
+                        ?>
+                            <div><?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for="<?php echo esc_attr($field['label']); ?>"><?php echo esc_attr($field['label']); ?></label><br>
+                                    <?php
+                                }
                                 ?>
-                                <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
-                                <?php
-                            } ?>
-                            <textarea class="<?php echo esc_attr($class); ?>" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>"></textarea> 
-                          </div> <?php
-                } elseif ('action' === $field['type'] ) {
-                    // doaction will perform here
-                } elseif ('drop-down' === $field['type'] ) {
-                    $multiple = ( isset($field['multiple']) && true === $field['multiple'] ) ? 'multiple' : '';
-                    ?>
-                        <div><?php
-                            if(isset($field['label'])) {
+                                <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" <?php echo esc_attr($multiple); ?>>
+                                    <?php  
+                                        foreach ($options as $option) {
+                                            ?>
+                                                <option value="<?php echo esc_attr($option); ?>"><?php echo esc_attr($option); ?></option>
+                                            <?php
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php
+                    } elseif ('checkboxes' === $field['type'] ) {
+                        ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
+                                    <?php
+                                } 
+                                foreach ($options as $option) {
+                                    ?>
+                                        <input type="checkbox" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" value="<?php echo esc_attr($option); ?>">
+                                        <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
+                                    <?php
+                                }
                                 ?>
-                                <label for="<?php echo esc_attr($field['label']); ?>"><?php echo esc_attr($field['label']); ?></label><br>
-                                <?php
-                            }
-                            ?>
-                            <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" <?php echo esc_attr($multiple); ?>>
-                                <?php  
-                                    foreach ($options as $option) {
-                                        ?>
-                                            <option value="<?php echo esc_attr($option); ?>"><?php echo esc_attr($option); ?></option>
-                                        <?php
-                                    }
+                            </div>
+                        <?php
+                    } elseif ('radio_buttons' === $field['type'] ) {
+                        ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
+                                    <?php
+                                } 
+                                foreach ($options as $option) {
                                 ?>
-                            </select>
-                        </div>
-                    <?php
-                } elseif ('checkboxes' === $field['type'] ) {
-                    ?>
-                        <div> <?php
-                            if(isset($field['label'])) {
-                                ?>
-                                <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
-                                <?php
-                            } 
-                            foreach ($options as $option) {
-                                ?>
-                                    <input type="checkbox" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" value="<?php echo esc_attr($option); ?>">
+                                    <input type="radio" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
                                     <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
                                 <?php
-                            }
+                                }
                             ?>
-                        </div>
-                    <?php
-
-                } elseif ('radio_buttons' === $field['type'] ) {
-                    ?>
-                        <div> <?php
-                            if(isset($field['label'])) {
-                                ?>
-                                <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
-                                <?php
-                            } 
-                            foreach ($options as $option) {
-                            ?>
-                                <input type="radio" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
-                                <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
-                            <?php
-                            }
+                            </div>
+                        <?php
+                    } else {
                         ?>
-                        </div>
-                    <?php
-
-                } else {
-                    ?>
-                        <div> <?php
-                            if(isset($field['label'])) {
-                                ?>
-                                <label for=""><?php echo esc_attr($field['label']); ?></label><br>
-                                <?php
-                            } ?>
-                            <input type="<?php echo esc_attr($field['type']); ?>" id="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>" name="<?php echo esc_attr($name); ?>" min="<?php echo esc_attr($min); ?>" max="<?php echo esc_attr($max); ?>" class="<?php echo esc_attr($class); ?>">
-                        </div>
-                    <?php
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php echo esc_attr($field['label']); ?></label><br>
+                                    <?php
+                                } ?>
+                                <input type="<?php echo esc_attr($field['type']); ?>" id="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>" name="<?php echo esc_attr($name); ?>" min="<?php echo esc_attr($min); ?>" max="<?php echo esc_attr($max); ?>" class="<?php echo esc_attr($class); ?>">
+                            </div>
+                        <?php
+                    }
                 }
             }
         ?>
@@ -177,7 +177,7 @@ class Loader
             <button class="g-recaptcha" 
             data-sitekey="<?php echo esc_attr($site_key); ?>" 
             data-callback='onSubmit' 
-            data-action='submit'>Submit</button>
+            data-action='submit'><?php echo esc_attr($data[0]['buttonText']); ?></button>
         </form>
 
         <script>
