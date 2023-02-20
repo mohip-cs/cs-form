@@ -29,7 +29,8 @@ class ContactForm
         add_filter('allowed_block_types_all', [$this, 'CSCF_allowed_block_types'], 10, 2);
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ], 10, 1 );
         add_filter( 'post_row_actions', [ $this, 'remove_view_link' ] );
-
+        add_action( 'wp_ajax_cs_form_recaptcha', [ $this, 'save_cs_form_recaptcha' ], 10 );
+		add_action( 'wp_ajax_nopriv_cs_form_recaptcha', [ $this, 'save_cs_form_recaptcha' ], 10 );
     }
 
     /**
@@ -92,12 +93,25 @@ class ContactForm
 	 */
 	public function enqueue_assets() {
         wp_enqueue_style(
-			'contact-form-admin-css',
-			plugins_url( "/src/styles/contact-form-admin-style.css", __DIR__ ),
+			'cs-form-admin-css',
+			plugins_url( "/src/styles/cs-form-admin-style.css", __DIR__ ),
 			[],
-			filemtime("/src/styles/contact-form-admin-style.css" ),
+			'1.0.0',
 			'all'
 		);
+        wp_enqueue_script( 
+            'cs-form-admin-js', 
+            plugins_url( "/src/scripts/cs-form-admin-script.js", __DIR__ ), 
+            array( 'jquery' ),
+            '1.0.0',
+            false 
+        );
+
+        $ajax_data = [
+			'nonce'   => wp_create_nonce( 'cs-form-recaptch-key' ),
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+		];
+		wp_localize_script( 'cs-form-admin-js', 'csFormAjax', $ajax_data );
     }
 
     /**
@@ -114,6 +128,28 @@ class ContactForm
             return $action;
         }
         return $action;
+    }
+
+    /**
+	 * Ajax function for unique slug generation
+	 *
+	 * @return void
+	 */
+	public function save_cs_form_recaptcha() {
+        $nonce = sanitize_text_field($_POST['Nonce']);
+        if ( empty( $_POST ) || ! wp_verify_nonce( $nonce, 'cs-form-recaptch-key' ) ) {
+            wp_send_json_error();
+        }
+        $site_key = isset( $_POST['formData']['siteKey'] ) ? sanitize_text_field( $_POST['formData']['siteKey'] ) : '';
+        $secret_key = isset( $_POST['formData']['secretKey'] ) ? sanitize_text_field( $_POST['formData']['secretKey'] ) : '';
+
+        if( !empty($site_key) && !empty($secret_key)  ) {
+            update_option( 'cs_form_site_key', $site_key );
+            update_option( 'cs_form_secret_key', $secret_key );
+
+            wp_send_json_success('keys added successfully.', 200 );
+        }
+        wp_send_json_error();
     }
 }
 

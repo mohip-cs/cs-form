@@ -75,19 +75,21 @@ class Loader
     }
 
     function render_callback_post($attributes) {
-        $data = get_post_meta($attributes['postId'], 'cf_attributes');
+        $data       = get_post_meta($attributes['postId'], 'cf_attributes');
+        $site_key   = ( get_option( 'cs_form_site_key' ) ) ? get_option( 'cs_form_site_key' ) : '';
+        $secret_key = ( get_option( 'cs_form_secret_key' ) ) ? get_option( 'cs_form_secret_key' ) : '';
         ob_start(); ?>
         <form method="post" action="" id="contactForm">
         <script src="https://www.google.com/recaptcha/api.js"></script>
             <?php
             foreach ($data[0]['FormData'] as $index=>$field) {
-                $placeholder = isset($field['placeholder']) ? ($field['placeholder']) : '';
-                $required = isset($field['required']) ? ($field['required']) : false;
-                $class = isset($field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
-                $name = isset($field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
-                $options = isset($field['options']) ? explode(",",$field['options']) : '';
-                $min = isset($field['min']) ? ($field['min']) : '';
-                $max = isset($field['max']) ? ($field['max']) : '';
+                $placeholder = ('' !== $field['placeholder']) ? ($field['placeholder']) : '';
+                $required = ('' !== $field['required']) ? ($field['required']) : false;
+                $class = ('' !== $field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
+                $name = ('' !== $field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
+                $options = ('' !== $field['options']) ? explode(",",$field['options']) : '';
+                $min = ('' !== $field['min']) ? ($field['min']) : '';
+                $max = ('' !== $field['max']) ? ($field['max']) : '';
                 // print_r($field);
                 if ( 'textarea' === $field['type'] ) { ?>
                           <div> <?php
@@ -149,7 +151,7 @@ class Loader
                             } 
                             foreach ($options as $option) {
                             ?>
-                                <input type="radio" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" value="<?php echo esc_attr($option); ?>">
+                                <input type="radio" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
                                 <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
                             <?php
                             }
@@ -173,7 +175,7 @@ class Loader
         ?>
             <!-- <input type="submit" value="<?php // echo esc_attr($data[0]['buttonText']); ?>"> -->
             <button class="g-recaptcha" 
-            data-sitekey="6LdHWWwkAAAAADc99n7qFw9BncGE_4oy4yTcahQx" 
+            data-sitekey="<?php echo esc_attr($site_key); ?>" 
             data-callback='onSubmit' 
             data-action='submit'>Submit</button>
         </form>
@@ -184,12 +186,12 @@ class Loader
             }
         </script>
 <?php
-        if(isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){  
+        if( !empty($secret_key) && isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){  
         
             // Google reCAPTCHA verification API Request  
             $api_url = 'https://www.google.com/recaptcha/api/siteverify';  
             $resq_data = array(  
-                'secret' => '6LdHWWwkAAAAAMNPHnOFB9dzYpe1ysHXy8zeC_qK',  
+                'secret' => $secret_key,  
                 'response' => $_POST['g-recaptcha-response'],  
                 'remoteip' => $_SERVER['REMOTE_ADDR']  
             );  

@@ -40,18 +40,33 @@ class Settings {
     }
 
     public function cs_form_setting_page_callback(){
+        $site_key   = ( get_option( 'cs_form_site_key' ) ) ? get_option( 'cs_form_site_key' ) : '';
+        $secret_key = ( get_option( 'cs_form_secret_key' ) ) ? get_option( 'cs_form_secret_key' ) : '';
         ?>
         <div class="wrap">
-            <div>
+       
+        <div class="notice notice-error recaptcha-error">
+            <p>
+                <strong><?php _e('Error', 'cs-form'); ?></strong><?php _e(': Invalid key values.', 'cs-form'); ?>
+            </p>
+        </div>
+        <div class="notice notice-success recaptcha-success">
+            <p>
+                <?php _e('Settings saved.', 'cs-form'); ?>
+            </p>
+        </div>
+        <div>
                 <h1><?php _e( 'Settings', 'cs-form' ); ?></h1>
                 <p><?php _e( ' reCAPTCHA', 'cs-form' ); ?></p>
             </div>
             <div>
-                <label for="site-key">Site key </label>
-                <input type="text" name="site-key" id="recaptcha-site-key" class="site-key">
-                <label for="site-key">Secret  key </label>
-                <input type="text" name="secret-key" id="recaptcha-secret-key" class="secret-key">
-                <button>Save Changes</button>
+                <form method="post" action="" id="recaptcha-setting-form"></form>
+                    <label for="site-key">Site key </label>
+                    <input type="text" name="site-key" id="recaptcha-site-key" class="site-key" value="<?php echo esc_attr($site_key); ?>">
+                    <label for="site-key">Secret  key </label>
+                    <input type="text" name="secret-key" id="recaptcha-secret-key" class="secret-key" value="<?php echo esc_attr($secret_key); ?>">
+                    <button id="recaptcha-submit" >Save Changes</button>
+                </form>
             </div>
         </div>
         <?php   
