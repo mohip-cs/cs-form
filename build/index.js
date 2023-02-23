@@ -755,11 +755,9 @@ function Edit(props) {
     attributes,
     setAttributes
   } = props;
-  console.log(attributes, "contact form list");
   const [contactFormList, setContactFormList] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-  console.log("attributes", attributes);
   _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_6___default()({
-    path: `wp/v2/contact_forms`
+    path: `wp/v2/cs_forms`
   }).then(result => {
     setContactFormList(result);
   }, error => {
@@ -774,7 +772,8 @@ function Edit(props) {
     value: attributes.postId
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
     selected: true,
-    disabled: true
+    disabled: true,
+    value: 0
   }, "Select a form"), contactFormList.map((option, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
     key: index,
     value: option.id

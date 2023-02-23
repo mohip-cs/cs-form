@@ -7,12 +7,9 @@ import apiFetch from "@wordpress/api-fetch";
 
 export default function Edit(props) {
 	const { attributes, setAttributes } = props;
-	console.log(attributes, "contact form list");
 	const [contactFormList, setContactFormList] = useState([]);
 
-	console.log("attributes", attributes);
-
-	apiFetch({ path: `wp/v2/contact_forms` }).then(
+	apiFetch({ path: `wp/v2/cs_forms` }).then(
 		(result) => {
 			setContactFormList(result);
 		},
@@ -30,7 +27,7 @@ export default function Edit(props) {
 						}}
 						value={attributes.postId}
 					>
-						<option selected disabled>
+						<option selected disabled value={0}>
 							Select a form
 						</option>
 						{contactFormList.map((option, index) => (

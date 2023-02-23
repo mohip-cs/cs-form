@@ -58,8 +58,6 @@ class Loader
 
     function cs_form_listing_contact_form_block_init()
     {
-        // 	var_dump('hello'); die();
-
         register_block_type(
             'listing-contact-form-cs/listing-contact-form',
             array(
@@ -80,7 +78,6 @@ class Loader
         $secret_key = ( get_option( 'cs_form_secret_key' ) ) ? get_option( 'cs_form_secret_key' ) : '';
         ob_start(); ?>
         <form method="post" action="" id="contactForm">
-        <script src="https://www.google.com/recaptcha/api.js"></script>
             <?php
             if(!empty($data[0]['FormData'])) {
                 foreach ($data[0]['FormData'] as $index=>$field) {
@@ -96,7 +93,8 @@ class Loader
                             <div> <?php
                                 if(isset($field['label'])) {
                                     ?>
-                                    <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
                                     <?php
                                 } ?>
                                 <textarea class="<?php echo esc_attr($class); ?>" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>"></textarea> 
@@ -109,7 +107,8 @@ class Loader
                             <div><?php
                                 if(isset($field['label'])) {
                                     ?>
-                                    <label for="<?php echo esc_attr($field['label']); ?>"><?php echo esc_attr($field['label']); ?></label><br>
+                                    <label for="<?php echo esc_attr($field['label']); ?>"><?php echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
                                     <?php
                                 }
                                 ?>
@@ -129,7 +128,8 @@ class Loader
                             <div> <?php
                                 if(isset($field['label'])) {
                                     ?>
-                                    <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
                                     <?php
                                 } 
                                 foreach ($options as $option) {
@@ -146,7 +146,8 @@ class Loader
                             <div> <?php
                                 if(isset($field['label'])) {
                                     ?>
-                                    <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
                                     <?php
                                 } 
                                 foreach ($options as $option) {
@@ -163,7 +164,8 @@ class Loader
                             <div> <?php
                                 if(isset($field['label'])) {
                                     ?>
-                                    <label for=""><?php echo esc_attr($field['label']); ?></label><br>
+                                    <label for=""><?php echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
                                     <?php
                                 } ?>
                                 <input type="<?php echo esc_attr($field['type']); ?>" id="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>" name="<?php echo esc_attr($name); ?>" min="<?php echo esc_attr($min); ?>" max="<?php echo esc_attr($max); ?>" class="<?php echo esc_attr($class); ?>">
@@ -173,19 +175,29 @@ class Loader
                 }
             }
         ?>
-            <!-- <input type="submit" value="<?php // echo esc_attr($data[0]['buttonText']); ?>"> -->
-            <button class="g-recaptcha" 
+            <!-- <input  id="cs-form-button" class="g-recaptcha" 
             data-sitekey="<?php echo esc_attr($site_key); ?>" 
-            data-callback='onSubmit' 
+            data-callback='csFormOnSubmit' 
+            data-action='submit' type="hidden" value="submit"> -->
+            <button type="submit"  class="g-recaptcha"
+            id="cs-form-button"
+            data-sitekey="<?php echo esc_attr($site_key); ?>" 
+            data-callback='csFormOnSubmit' 
             data-action='submit'><?php echo esc_attr($data[0]['buttonText']); ?></button>
         </form>
+        <?php
+        $this->recaptcha_validation($secret_key);
+        return ob_get_clean();
+    }
 
-        <script>
-            function onSubmit(token) {
-                document.getElementById("contactForm").submit();
-            }
-        </script>
-<?php
+    /**
+	 * Function for validate recaptcha.
+	 *
+	 * @param array $action Allowed block types.
+	 *
+	 * @return void
+	 */
+    private function recaptcha_validation($secret_key) {
         if( !empty($secret_key) && isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){  
         
             // Google reCAPTCHA verification API Request  
@@ -211,40 +223,38 @@ class Loader
             // Decode JSON data of API response in array  
             $responseData = json_decode($response);  
 
-            // If the reCAPTCHA API response is valid  
+            //If the reCAPTCHA API response is valid  
             if($responseData->success){ 
                 // Send email notification to the site admin  
-                $to = 'patelmohip9@gmail.com';  
-                $subject = 'New Contact Request Submitted';  
-                $htmlContent = "  
-                    <h4>Contact request details</h4>  
-                    <p><b>Name: </b></p>  
-                    <p><b>Email: </b></p>  
-                    <p><b>Message: </b></p>  
-                ";  
+                // $to = 'patelmohip9@gmail.com';  
+                // $subject = 'New Contact Request Submitted';  
+                // $htmlContent = "  
+                //     <h4>Contact request details</h4>  
+                //     <p><b>Name: </b></p>  
+                //     <p><b>Email: </b></p>  
+                //     <p><b>Message: </b></p>  
+                // ";  
                 
-                // Always set content-type when sending HTML email  
-                $headers = "MIME-Version: 1.0" . "\r\n";  
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";  
-                // Sender info header  
-                $headers .= 'From:'.$name.' <patelmohip911@gmail.com>' . "\r\n";  
+                // // Always set content-type when sending HTML email  
+                // $headers = "MIME-Version: 1.0" . "\r\n";  
+                // $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";  
+                // // Sender info header  
+                // $headers .= 'From:'.$name.' <patelmohip911@gmail.com>' . "\r\n";  
                 
-                // Send email  
-                @mail($to, $subject, $htmlContent, $headers);  
-                
+                // // Send email  
+                // @mail($to, $subject, $htmlContent, $headers);  
+                // wp_mail( $to, $subject, $htmlContent, $headers );
                 $status = 'success';  
                 $statusMsg = 'Thank you! Your contact request has been submitted successfully.';  
                 $postData = '';  
             }else{  
                 $statusMsg = 'The reCAPTCHA verification failed, please try again.';  
             }  
-        }else{  
-            $statusMsg = 'Something went wrong, please try again.';  
-        }  
-         if(!empty($statusMsg)){ ?>
-            <p class="status-msg <?php echo $status; ?>"><?php echo $statusMsg; ?></p>
-        <?php } 
-        return ob_get_clean();
+        } 
+        if(!empty($statusMsg)){ ?>
+             <p class="status-msg <?php echo $status; ?>"><?php echo $statusMsg; ?></p>
+             <?php
+        }
     }
 }
 
