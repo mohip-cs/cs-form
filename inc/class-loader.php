@@ -3,7 +3,7 @@
 /**
  *  Loader.
  *
- * @package CF
+ * @package CS Form
  */
 
 if (!defined('ABSPATH')) {
@@ -24,12 +24,12 @@ class Loader
      */
     public function __construct()
     {
-        add_action('init', array($this, 'register_post_meta_cf'));
-        add_action('init', array($this, 'contact_form_cs_contact_form_block_init'));
-        add_action('init', array($this, 'contact_form_cs_listing_contact_form_block_init'));
+        add_action('init', array($this, 'cs_form_register_post_meta'));
+        add_action('init', array($this, 'cs_form_contact_form_block_init'));
+        add_action('init', array($this, 'cs_form_listing_contact_form_block_init'));
     }
 
-    function contact_form_cs_contact_form_block_init()
+    function cs_form_contact_form_block_init()
     {
         register_block_type(
             plugin_dir_path(__DIR__) . '/build',
@@ -41,13 +41,10 @@ class Loader
 
     function render_callback_cf($attributes)
     {
-        // var_dump($attributes);
-        // die('testtt123');
         update_post_meta($attributes['postId'], 'cf_attributes', $attributes);
-        // ob_start();
     }
 
-    function register_post_meta_cf()
+    function cs_form_register_post_meta()
     {
         register_post_meta(
             'contact-form',
@@ -59,10 +56,8 @@ class Loader
         );
     }
 
-    function contact_form_cs_listing_contact_form_block_init()
+    function cs_form_listing_contact_form_block_init()
     {
-        // 	var_dump('hello'); die();
-
         register_block_type(
             'listing-contact-form-cs/listing-contact-form',
             array(
@@ -77,118 +72,192 @@ class Loader
         );
     }
 
-    function render_callback_post($attributes)
-    {
-        $data = get_post_meta($attributes['postId'], 'cf_attributes');
-
-        ob_start();
-?>
-        <pre>
+    function render_callback_post($attributes) {
+        $data       = get_post_meta($attributes['postId'], 'cf_attributes');
+        $site_key   = ( get_option( 'cs_form_site_key' ) ) ? get_option( 'cs_form_site_key' ) : '';
+        $secret_key = ( get_option( 'cs_form_secret_key' ) ) ? get_option( 'cs_form_secret_key' ) : '';
+        ob_start(); ?>
+        <form method="post" action="" id="contactForm">
             <?php
-                var_dump($data[0]['FormData']);
-            ?>
-        </pre>
-        <form action="action_page.php">
-
-        <?php
-            foreach ($data[0]['FormData'] as $index=>$field) {
-                $placeholder = isset($field['placeholder']) ? ($field['placeholder']) : '';
-                $required = isset($field['required']) ? ($field['required']) : false;
-                $class = isset($field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
-                $name = isset($field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
-                // print_r($field);
-                if ( 'textarea' === $field['type'] ) {
-                    ?>
-                          <div>  <?php
-                            if(isset($field['label'])) {
+            if(!empty($data[0]['FormData'])) {
+                foreach ($data[0]['FormData'] as $index=>$field) {
+                    $placeholder = ('' !== $field['placeholder']) ? ($field['placeholder']) : '';
+                    $required    = ('' !== $field['required']) ? ($field['required']) : false;
+                    $class       = ('' !== $field['class']) ? ($field['class']) : 'cs_form_'.$field['type'];
+                    $name        = ('' !== $field['name']) ? ($field['name']) : 'cs_form_'.$field['type'].$index;
+                    $options     = ('' !== $field['options']) ? explode(",",$field['options']) : '';
+                    $min         = ('' !== $field['min']) ? ($field['min']) : '';
+                    $max         = ('' !== $field['max']) ? ($field['max']) : '';
+                    
+                    if ( 'textarea' === $field['type'] ) { ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
+                                    <?php
+                                } ?>
+                                <textarea class="<?php echo esc_attr($class); ?>" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>"></textarea> 
+                            </div> <?php
+                    } elseif ('action' === $field['type'] ) {
+                        // doaction will perform here
+                    } elseif ('drop-down' === $field['type'] ) {
+                        $multiple = ( isset($field['multiple']) && true === $field['multiple'] ) ? 'multiple' : '';
+                        ?>
+                            <div><?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for="<?php echo esc_attr($field['label']); ?>"><?php echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
+                                    <?php
+                                }
                                 ?>
-                                <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
-                                <?php
-                            }
-                            ?>
-                              <textarea class="<?php echo esc_attr($class); ?>" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>"></textarea> 
-                          </div>
-                    <?php
-                } elseif ('action' === $field['type'] ) {
-                    // doaction will perform here
-                } elseif ('drop-down' === $field['type'] ) {
-                    $multiple = isset($field['multiple']) ? ($field['multiple']) : false;
-                    $options = isset($field['multiple']) ? explode(",",$field['multiple']) : '';
-                    ?>
-                        <div><?php
-                            if(isset($field['label'])) {
+                                <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" <?php echo esc_attr($multiple); ?>>
+                                    <?php  
+                                        foreach ($options as $option) {
+                                            ?>
+                                                <option value="<?php echo esc_attr($option); ?>"><?php echo esc_attr($option); ?></option>
+                                            <?php
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php
+                    } elseif ('checkboxes' === $field['type'] ) {
+                        ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
+                                    <?php
+                                } 
+                                foreach ($options as $option) {
+                                    ?>
+                                        <input type="checkbox" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" value="<?php echo esc_attr($option); ?>">
+                                        <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
+                                    <?php
+                                }
                                 ?>
-                                <label for="<?php echo esc_attr($field['label']); ?>"><?php echo esc_attr($field['label']); ?></label><br>
+                            </div>
+                        <?php
+                    } elseif ('radio_buttons' === $field['type'] ) {
+                        ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php  echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
+                                    <?php
+                                } 
+                                foreach ($options as $option) {
+                                ?>
+                                    <input type="radio" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
+                                    <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
                                 <?php
-                            }
+                                }
                             ?>
-                            <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
-                                <option value="australia">Australia</option>
-                                <option value="canada">Canada</option>
-                                <option value="usa">USA</option>
-                            </select>
-                        </div>
-                    <?php
-
-                } elseif ('checkboxes' === $field['type'] ) {
-                    ?>
-                        <div>
-                            <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-                            <label for="vehicle1"> I have a bike</label><br>
-                            <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
-                            <label for="vehicle2"> I have a car</label><br>
-                            <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-                            <label for="vehicle3"> I have a boat</label><br>
-                        </div>
-                    <?php
-
-                } elseif ('radio_buttons' === $field['type'] ) {
-                    ?>
-                        <div>
-                            <input type="radio" id="html" name="fav_language" value="HTML">
-                            <label for="html">HTML</label><br>
-                            <input type="radio" id="css" name="fav_language" value="CSS">
-                            <label for="css">CSS</label><br>
-                            <input type="radio" id="javascript" name="fav_language" value="JavaScript">
-                            <label for="javascript">JavaScript</label>
-                        </div>
-                    <?php
-
-                } else {
-                    ?>
-                        <div>
-                            <label for=""><?php  echo esc_attr($field['label']); ?></label><br>
-                            <input type="<?php  echo esc_attr($field['type']); ?>" >
-                        </div>
-                    <?php
+                            </div>
+                        <?php
+                    } else {
+                        ?>
+                            <div> <?php
+                                if(isset($field['label'])) {
+                                    ?>
+                                    <label for=""><?php echo esc_attr($field['label']); ?></label>
+                                    <span class="cs-from-error-msg">This field is required</span><br>
+                                    <?php
+                                } ?>
+                                <input type="<?php echo esc_attr($field['type']); ?>" id="<?php echo esc_attr($name); ?>" placeholder="<?php  echo esc_attr($placeholder); ?>" name="<?php echo esc_attr($name); ?>" min="<?php echo esc_attr($min); ?>" max="<?php echo esc_attr($max); ?>" class="<?php echo esc_attr($class); ?>">
+                            </div>
+                        <?php
+                    }
                 }
             }
         ?>
-
-            <!-- <label for="fname">First Name</label>
-            <input type="text" id="fname" name="firstname" placeholder="Your name..">
-
-            <label for="lname">Last Name</label>
-            <input type="text" id="lname" name="lastname" placeholder="Your last name..">
-
-            <label for="country">Country</label>
-            <select id="country" name="country">
-                <option value="australia">Australia</option>
-                <option value="canada">Canada</option>
-                <option value="usa">USA</option>
-            </select>
-
-            <label for="subject">Subject</label>
-            <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea> -->
-
-            <input type="submit" value="Submit">
-
+            <!-- <input  id="cs-form-button" class="g-recaptcha" 
+            data-sitekey="<?php echo esc_attr($site_key); ?>" 
+            data-callback='csFormOnSubmit' 
+            data-action='submit' type="hidden" value="submit"> -->
+            <button type="submit"  class="g-recaptcha"
+            id="cs-form-button"
+            data-sitekey="<?php echo esc_attr($site_key); ?>" 
+            data-callback='csFormOnSubmit' 
+            data-action='submit'><?php echo esc_attr($data[0]['buttonText']); ?></button>
         </form>
-<?php
+        <?php
+        $this->recaptcha_validation($secret_key);
         return ob_get_clean();
+    }
+
+    /**
+	 * Function for validate recaptcha.
+	 *
+	 * @param array $action Allowed block types.
+	 *
+	 * @return void
+	 */
+    private function recaptcha_validation($secret_key) {
+        if( !empty($secret_key) && isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){  
+        
+            // Google reCAPTCHA verification API Request  
+            $api_url = 'https://www.google.com/recaptcha/api/siteverify';  
+            $resq_data = array(  
+                'secret' => $secret_key,  
+                'response' => $_POST['g-recaptcha-response'],  
+                'remoteip' => $_SERVER['REMOTE_ADDR']  
+            );  
+
+            $curlConfig = array(  
+                CURLOPT_URL => $api_url,  
+                CURLOPT_POST => true,  
+                CURLOPT_RETURNTRANSFER => true,  
+                CURLOPT_POSTFIELDS => $resq_data  
+            );  
+
+            $ch = curl_init();  
+            curl_setopt_array($ch, $curlConfig);  
+            $response = curl_exec($ch);  
+            curl_close($ch);  
+
+            // Decode JSON data of API response in array  
+            $responseData = json_decode($response);  
+
+            //If the reCAPTCHA API response is valid  
+            if($responseData->success){ 
+                // Send email notification to the site admin  
+                // $to = 'patelmohip9@gmail.com';  
+                // $subject = 'New Contact Request Submitted';  
+                // $htmlContent = "  
+                //     <h4>Contact request details</h4>  
+                //     <p><b>Name: </b></p>  
+                //     <p><b>Email: </b></p>  
+                //     <p><b>Message: </b></p>  
+                // ";  
+                
+                // // Always set content-type when sending HTML email  
+                // $headers = "MIME-Version: 1.0" . "\r\n";  
+                // $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";  
+                // // Sender info header  
+                // $headers .= 'From:'.$name.' <patelmohip911@gmail.com>' . "\r\n";  
+                
+                // // Send email  
+                // @mail($to, $subject, $htmlContent, $headers);  
+                // wp_mail( $to, $subject, $htmlContent, $headers );
+                $status = 'success';  
+                $statusMsg = 'Thank you! Your contact request has been submitted successfully.';  
+                $postData = '';  
+            }else{  
+                $statusMsg = 'The reCAPTCHA verification failed, please try again.';  
+            }  
+        } 
+        if(!empty($statusMsg)){ ?>
+             <p class="status-msg <?php echo $status; ?>"><?php echo $statusMsg; ?></p>
+             <?php
+        }
     }
 }
 
 if (class_exists('Loader')) {
-    $class = new Loader();
+    new Loader();
 }

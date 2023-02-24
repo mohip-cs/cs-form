@@ -286,6 +286,7 @@ const modalPopup = _ref => {
   } = props;
   console.log(attributes, "modal popup");
   const [isToggled, toggle] = (0,react__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
+  const placeholderFields = ['text', 'email', 'textarea', 'number', 'url'];
   const reuiredCheckHandlar = (value, index) => {
     toggle(!isToggled);
     const requiredFormData = [...attributes.FormData];
@@ -345,7 +346,7 @@ const modalPopup = _ref => {
   };
   const addmultipleHandlar = (value, index) => {
     const multipleFormData = [...attributes.FormData];
-    multipleFormData[index].multiple = value.target.value;
+    multipleFormData[index].multiple = value.target.checked;
     setAttributes({
       FormData: multipleFormData
     });
@@ -383,7 +384,7 @@ const modalPopup = _ref => {
     },
     onChange: label => addlabelhandlar(label, index),
     placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_3__.__)(`Enter ${data.type} field label name`)
-  }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, "placeholder "), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.useBlockProps, {
+  }))), placeholderFields.includes(data.type) && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, "placeholder "), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.useBlockProps, {
     tagName: "span",
     value: data.placeholder,
     style: {
@@ -646,18 +647,16 @@ function Edit(props) {
     }, "Select Option"), optionsArray.map((option, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("option", {
       key: index,
       value: option.value
-    }, option)))) : element.type == "checkboxes" ? optionsArray.length === 1 && optionsArray[1] !== "" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
+    }, option)))) : element.type == "checkboxes" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("p", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, element.label)), optionsArray.length === 1 && optionsArray[1] !== "" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
       label: "option"
     }) : optionsArray.map(option => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
       label: option
-    })) : element.type == "radio_buttons" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, optionsArray.length === 1 && optionsArray[1] !== "" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.RadioControl, {
-      label: element.label,
+    }))) : element.type == "radio_buttons" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("p", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, element.label)), optionsArray.length === 1 && optionsArray[1] !== "" ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.RadioControl, {
       options: [{
         label: "redio control",
         value: ""
       }]
     }) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.RadioControl, {
-      label: element.label,
       options: optionsArray.map(option => ({
         label: option,
         value: option
@@ -756,11 +755,9 @@ function Edit(props) {
     attributes,
     setAttributes
   } = props;
-  console.log(attributes, "contact form list");
   const [contactFormList, setContactFormList] = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-  console.log("attributes", attributes);
   _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_6___default()({
-    path: `wp/v2/contact_forms`
+    path: `wp/v2/cs_forms`
   }).then(result => {
     setContactFormList(result);
   }, error => {
@@ -775,7 +772,8 @@ function Edit(props) {
     value: attributes.postId
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
     selected: true,
-    disabled: true
+    disabled: true,
+    value: 0
   }, "Select a form"), contactFormList.map((option, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("option", {
     key: index,
     value: option.id

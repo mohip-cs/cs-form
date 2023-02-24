@@ -1,0 +1,11 @@
+.block-editor-post-preview__dropdown {
+    display: none ;
+}
+
+.recaptcha-error {
+    display: none;
+}
+
+.recaptcha-success {
+    display: none;
+}
