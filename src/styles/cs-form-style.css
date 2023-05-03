@@ -1,0 +1,8 @@
+.cs-from-error-msg{
+	display: none;
+}
+
+.show_error .cs-from-error-msg{
+	display: block;
+	color: red;
+}

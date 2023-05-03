@@ -30,8 +30,8 @@ class ContactForm
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_assets' ], 10, 1 );
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ], 10, 1 );
         add_filter( 'post_row_actions', [ $this, 'remove_view_link' ] );
-        add_action( 'wp_ajax_cs_form_submit', [ $this, 'validate_cs_form_data' ], 10 );
-		add_action( 'wp_ajax_nopriv_cs_form_submit', [ $this, 'validate_cs_form_data' ], 10 );
+        // add_action( 'wp_ajax_cs_form_submit', [ $this, 'validate_cs_form_data' ], 10 );
+		// add_action( 'wp_ajax_nopriv_cs_form_submit', [ $this, 'validate_cs_form_data' ], 10 );
     }
 
     /**
@@ -101,6 +101,14 @@ class ContactForm
             false 
         );
 
+        wp_enqueue_style(
+			'cs-form-css',
+			plugins_url( "/src/styles/cs-form-style.css", __DIR__ ),
+			[],
+			'1.0.0',
+			'all'
+		);
+
 		wp_enqueue_script( 
             'cs-form-js', 
             plugins_url( "/src/scripts/cs-from-script.js", __DIR__ ), 
@@ -116,6 +124,7 @@ class ContactForm
 		wp_localize_script( 'cs-form-js', 'csFormSubmitAjax', $ajax_data );
 		
     }
+
     /**
 	 * Enqueue custom admin field assets.
 	 *
@@ -168,7 +177,7 @@ class ContactForm
 	public function validate_cs_form_data() {
 		$data = $_POST['formData'];
 		// print_r($data); 
-		if(false){ 
+		if(true){ 
 			$to = 'patelmohip9@gmail.com';  
 			$subject = 'New Contact Request Submitted';  
 			$htmlContent = "  
@@ -182,13 +191,13 @@ class ContactForm
 			$headers = "MIME-Version: 1.0" . "\r\n";  
 			$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";  
 			// Sender info header  
-			$headers .= 'From:'.$name.' <patelmohip911@gmail.com>' . "\r\n";  
+			$headers .= 'From:Mohip <patelmohip911@gmail.com>' . "\r\n";  
 			
 			// Send email  
 			// @mail($to, $subject, $htmlContent, $headers);  
 			wp_mail( $to, $subject, $htmlContent, $headers );  
 		}   
-		wp_send_json_success('keys added successfully.', 200 );
+		wp_send_json_success($data, 200 );
 	}
 }
 

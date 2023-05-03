@@ -375,6 +375,7 @@ const modalPopup = _ref => {
   }, "X")), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, "Field type:"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("input", {
     type: "checkbox",
     onClick: value => reuiredCheckHandlar(value, index),
+    checked: data.required,
     value: data.required
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, "Required field")), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("label", null, "label :"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.useBlockProps, {
     tagName: "span",

@@ -90,6 +90,7 @@ const modalPopup = ({ data, index, props, setSettingModel, settingModel }) => {
 					<input
 						type="checkbox"
 						onClick={(value) => reuiredCheckHandlar(value, index)}
+						checked={ data.required }
 						value={data.required}
 					/>
 					<label>Required field</label>

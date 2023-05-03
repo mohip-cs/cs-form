@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:       CS Form
- * Description:       utenberg block For create contact form.
+ * Description:       Gutenberg block For create contact form.
  * Requires at least: 6.1
  * Requires PHP:      7.0
  * Version:           1.0.0

@@ -63,7 +63,7 @@ class Loader
             array(
                 'render_callback' => array($this, 'render_callback_post'),
                 'attributes'      => array(
-                    'postId'        => array(
+                    'postId' => array(
                         'type'    => 'integer',
                         'default' => 0,
                     )
@@ -73,9 +73,10 @@ class Loader
     }
 
     function render_callback_post($attributes) {
-        $data       = get_post_meta($attributes['postId'], 'cf_attributes');
-        $site_key   = ( get_option( 'cs_form_site_key' ) ) ? get_option( 'cs_form_site_key' ) : '';
-        $secret_key = ( get_option( 'cs_form_secret_key' ) ) ? get_option( 'cs_form_secret_key' ) : '';
+        $data        = get_post_meta($attributes['postId'], 'cf_attributes');
+        $site_key    = ( get_option( 'cs_form_site_key' ) ) ? get_option( 'cs_form_site_key' ) : '';
+        $secret_key  = ( get_option( 'cs_form_secret_key' ) ) ? get_option( 'cs_form_secret_key' ) : '';
+        $fields_name = [];
         ob_start(); ?>
         <form method="post" action="" id="contactForm">
             <?php
@@ -88,6 +89,7 @@ class Loader
                     $options     = ('' !== $field['options']) ? explode(",",$field['options']) : '';
                     $min         = ('' !== $field['min']) ? ($field['min']) : '';
                     $max         = ('' !== $field['max']) ? ($field['max']) : '';
+                    $class       = ($required) ? $class.' required' : $class;
                     
                     if ( 'textarea' === $field['type'] ) { ?>
                             <div> <?php
@@ -113,6 +115,7 @@ class Loader
                                 }
                                 ?>
                                 <select id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>" <?php echo esc_attr($multiple); ?>>
+                                <option value="" selected disabled hidden>Select an Option</option>
                                     <?php  
                                         foreach ($options as $option) {
                                             ?>
@@ -152,7 +155,7 @@ class Loader
                                 } 
                                 foreach ($options as $option) {
                                 ?>
-                                    <input type="radio" id="<?php echo esc_attr($name); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
+                                    <input type="radio" id="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($option); ?>" name="<?php echo esc_attr($name); ?>" class="<?php echo esc_attr($class); ?>">
                                     <label for="<?php echo esc_attr($option); ?>"> <?php echo esc_attr($option); ?></label><br>
                                 <?php
                                 }
@@ -172,13 +175,10 @@ class Loader
                             </div>
                         <?php
                     }
+                    $fields_name[]= $name;
                 }
             }
         ?>
-            <!-- <input  id="cs-form-button" class="g-recaptcha" 
-            data-sitekey="<?php echo esc_attr($site_key); ?>" 
-            data-callback='csFormOnSubmit' 
-            data-action='submit' type="hidden" value="submit"> -->
             <button type="submit"  class="g-recaptcha"
             id="cs-form-button"
             data-sitekey="<?php echo esc_attr($site_key); ?>" 
@@ -186,7 +186,7 @@ class Loader
             data-action='submit'><?php echo esc_attr($data[0]['buttonText']); ?></button>
         </form>
         <?php
-        $this->recaptcha_validation($secret_key);
+        $this->recaptcha_validation($secret_key, $data[0]['mailBody'], $fields_name);
         return ob_get_clean();
     }
 
@@ -197,11 +197,59 @@ class Loader
 	 *
 	 * @return void
 	 */
-    private function recaptcha_validation($secret_key) {
+    private function recaptcha_validation($secret_key, $mail_body, $fields_name) {
+        $field_data = [];
+
+        foreach($mail_body as $text) {
+            switch ($text['label']) {
+                case 'To':
+                   $body_text['to'] = $text['text'];
+                    break;
+                case 'From':
+                   $body_text['from'] = $text['text'];
+                    break;
+                case 'Subject':
+                   $body_text['subject'] = $text['text'];
+                    break;
+                case 'cc':
+                   $body_text['cc'] = $text['text'];
+                    break;
+                case 'bcc':
+                   $body_text['bcc'] = $text['text'];
+                    break;
+                case 'Message Body':
+                   $body_text['message'] = $text['text'];
+                    break;
+                case 'File attachments':
+                   $body_text['file'] = $text['text'];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if( str_contains($body_text['to'], '[') && str_contains($body_text['to'], ']') ) {
+            $to = trim($body_text['to'], '[]');
+            $to = ($to === 'site_admin_email') ? get_option( 'admin_email' ) : '';
+        } elseif (str_contains($body_text['to'], '{') && str_contains($body_text['to'], '}')) {
+            $to = trim($body_text['to'], '{}');
+        }
+
+        if( str_contains($body_text['from'], '[') && str_contains($body_text['from'], ']') ) {
+            $from = trim($body_text['from'], '[]');
+            $from = ($from === 'site_admin_email') ? get_option( 'admin_email' ) : '';
+        } elseif (str_contains($body_text['from'], '{') && str_contains($body_text['from'], '}')) {
+            $from = trim($body_text['from'], '{}');
+        }
+
         if( !empty($secret_key) && isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){  
-        
+            var_dump($fields_name); die();
+            foreach($fields_name as $fields_name) {
+                $field_data[] = sanitize_text_field( filter_input( INPUT_POST, $fields_name ) );
+            }
+            
             // Google reCAPTCHA verification API Request  
-            $api_url = 'https://www.google.com/recaptcha/api/siteverify';  
+            $api_url = 'https://www.google.com/recaptcha/api/siteverify';
             $resq_data = array(  
                 'secret' => $secret_key,  
                 'response' => $_POST['g-recaptcha-response'],  
@@ -227,30 +275,30 @@ class Loader
             if($responseData->success){ 
                 // Send email notification to the site admin  
                 // $to = 'patelmohip9@gmail.com';  
-                // $subject = 'New Contact Request Submitted';  
-                // $htmlContent = "  
-                //     <h4>Contact request details</h4>  
-                //     <p><b>Name: </b></p>  
-                //     <p><b>Email: </b></p>  
-                //     <p><b>Message: </b></p>  
-                // ";  
+                $subject = 'New Contact Request Submitted';  
+                $htmlContent = "  
+                    <h4>Contact request details</h4>  
+                    <p><b>Name: </b></p>  
+                    <p><b>Email: </b></p>  
+                    <p><b>Message: </b></p>  
+                ";  
                 
-                // // Always set content-type when sending HTML email  
-                // $headers = "MIME-Version: 1.0" . "\r\n";  
-                // $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";  
-                // // Sender info header  
-                // $headers .= 'From:'.$name.' <patelmohip911@gmail.com>' . "\r\n";  
+                // Always set content-type when sending HTML email  
+                $headers = "MIME-Version: 1.0" . "\r\n";
+                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                // Sender info header  
+                $headers .= 'From:'.$name.' <patelmohip911@gmail.com>' . "\r\n";
                 
-                // // Send email  
+                // Send email  
                 // @mail($to, $subject, $htmlContent, $headers);  
-                // wp_mail( $to, $subject, $htmlContent, $headers );
+                wp_mail( $to, $subject, $htmlContent, $headers );
                 $status = 'success';  
                 $statusMsg = 'Thank you! Your contact request has been submitted successfully.';  
                 $postData = '';  
             }else{  
                 $statusMsg = 'The reCAPTCHA verification failed, please try again.';  
-            }  
-        } 
+            }
+        }
         if(!empty($statusMsg)){ ?>
              <p class="status-msg <?php echo $status; ?>"><?php echo $statusMsg; ?></p>
              <?php
